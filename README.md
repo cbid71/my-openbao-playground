@@ -166,7 +166,7 @@ NOW we are ready to request and get secrets from OpenBAO since we already activa
 
 ## Application using OpenBAO
 
-We will deploy an application 
+We will deploy an application that will request openBAO through annotations, and will mount the result as a file on the pod.
 
 
 
