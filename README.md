@@ -128,7 +128,7 @@ kubectl exec -n play -i my-openbao-0 -- /bin/sh -c "bao write auth/kubernetes/co
   kubernetes_ca_cert=\"$CA_CERT\""
 ```
 
-Prepare a very simple policy that we will use to define with your application pods are allowed to do :
+Then prepare a very simple `policy` that we will describe what your application pods are allowed to do on OpenBAO :
 
 ```
 # Read only in the path kv/secret/myapp/* on your openBAO secrets tree.
