@@ -213,6 +213,17 @@ spec:
 kubectl apply -f demo-pod.yaml
 ```
 
+The informations contained in secret on the openBAO should be on the pod now :
+
+```
+kubectl logs -f demo-pod -n play
+
+Defaulted container "app" out of: app, vault-agent, vault-agent-init (init)
+USERNAME=demo
+PASSWORD=s3cr3t
+```
+
+
 **Explaination :**
 
 the annotations will tell kubernetes to add a sidecar to the pod, in charge of fetching the secret.
