@@ -140,7 +140,7 @@ kubectl exec -n play -i my-openbao-0 -- /bin/sh -c "bao write auth/kubernetes/co
   kubernetes_ca_cert=\"$CA_CERT\""
 ```
 
-Then you create an OpenBAO role, it associate a **future service account assumed by you app pods** to an OpenBAO policy.
+Then you create an OpenBAO role, it associate a **future service account assumed by your app's pods** to an OpenBAO policy.
 
 ```
 # We create an openBao role for each kubernetes serviceaccount associated to pods that will try to request OpenBAO
@@ -228,10 +228,10 @@ PASSWORD=s3cr3t
 
 the annotations will tell kubernetes to add a sidecar to the pod, in charge of fetching the secret.
 
-`vault.hashicorp.com/agent-inject-secret-*.txt` must contains the real full path of the secret
-`vault.hashicorp.com/agent-inject-template-*.txt` is a template that will translate the content of the secret into a file
-By default the file will be mounted on the pod in `/vault/secrets/*.txt`
-The defaut location of the file can be changed by adding an annotation `vault.hashicorp.com/agent-inject-path:` valuing a directory where everything we be stored
+- `vault.hashicorp.com/agent-inject-secret-*.txt` must contains the real full path of the secret
+- `vault.hashicorp.com/agent-inject-template-*.txt` is a template that will translate the content of the secret into a file
+- By default the file will be mounted on the pod in `/vault/secrets/*.txt`
+- The defaut location of the file can be changed by adding an annotation `vault.hashicorp.com/agent-inject-path:` valuing a directory where everything will be stored 
 example:
 `vault.hashicorp.com/agent-inject-path: "/my/custom/path"` 
 
