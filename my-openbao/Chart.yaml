@@ -1,0 +1,12 @@
+apiVersion: v2
+name: OpenBAO
+description: A Helm chart that depends on official openBAO
+type: application
+version: 0.14.0
+
+dependencies:
+  - name: openbao
+    version: "0.14.0"
+    repository: "https://openbao.github.io/openbao-helm"
+
+## https://github.com/openbao/openbao-helm/tree/openbao-0.14.0

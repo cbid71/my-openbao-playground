@@ -1,0 +1,13 @@
+---
+
+openbao:
+  global:
+    namespace: play
+    injector:
+      metrics:
+        enabled: true
+  server:
+    ingress:
+      enabled: true
+      hosts:
+        - host: my-openbao.local
