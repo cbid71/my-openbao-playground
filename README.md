@@ -52,19 +52,7 @@ kubectl exec -n play -ti my-openbao-0 -- bao secrets enable kv
 # kubectl exec -n play -ti my-openbao-0 -- bao secrets enable kv -path=v2
 ```
 
-Prepare a very simple policy that we will use later
-```
-# prepare a policy, it will define the rules for what our app pods are allowed to do in openBAO 
-kubectl -n play exec -i my-openbao-0 -- /bin/sh -c "cat > /home/openbao/app-policy.hcl" <<EOF
-path "kv/secret/myapp/*" {
-  capabilities = ["read"]
-}
-EOF
-# note : this policy is very open, and only for test
-kubectl -n play exec -i my-openbao-0 -- bao policy write pod-read-only-policy /home/openbao/app-policy.hcl
-```
-
-Prepare a specific service account, it will be used by openBAO the request the control plane.
+Prepare a technical-aimed service account, it will be used by openBAO the request the control plane.
 
 ``` sa-bao.yaml
 
@@ -140,15 +128,31 @@ kubectl exec -n play -i my-openbao-0 -- /bin/sh -c "bao write auth/kubernetes/co
   kubernetes_ca_cert=\"$CA_CERT\""
 ```
 
-Then you create an OpenBAO role, it associate a **future service account assumed by your app's pods** to an OpenBAO policy.
+Prepare a very simple policy that we will use to define with your application pods are allowed to do :
 
 ```
-# We create an openBao role for each kubernetes serviceaccount associated to pods that will try to request OpenBAO
-# for the demo we can imagine that all our pods will use the same serviceaccount named "demo-sa" and we will create an openbao role 'demo-role'
-# of course in a real world app, you can have several roles, one for each service account
-# or have several roles associated to the same service account
-# but PLEASE keep it simple : one role = one service account
-# here the role 'demo-role' will associate the kubernetes service account 'demo-sa' to the openbao policy 'pod-read-only-policy'
+# Read only in the path kv/secret/myapp/* on your openBAO secrets tree.
+
+kubectl -n play exec -i my-openbao-0 -- /bin/sh -c "cat > /home/openbao/app-policy.hcl" <<EOF
+path "kv/secret/myapp/*" {
+  capabilities = ["read"]
+}
+EOF
+
+# note : this policy is very open, and only for test
+
+kubectl -n play exec -i my-openbao-0 -- bao policy write pod-read-only-policy /home/openbao/app-policy.hcl
+```
+
+Then you create an OpenBAO `role`.
+
+An openBAO `role` associates a `service accounts assumed by your app's pods` to an OpenBAO `policy`.
+
+A role gives the possibility to a pod with a specific service account to connect to OpenBAO and associate a policy describing what this SA is allowed to do on OpenBAO.  
+
+```
+# For the demo all our application pods will use a same k8s service account named "demo-sa" and we will create an openbao role 'demo-role'
+# For the demi the role 'demo-role' will associate the kubernetes service account 'demo-sa' to the openbao policy 'pod-read-only-policy' created earlier.
  
 kubectl -n play exec -i my-openbao-0 -- bao write auth/kubernetes/role/demo-role \
     bound_service_account_names=demo-sa \
@@ -164,14 +168,18 @@ NOW we are ready to request and get secrets from OpenBAO since we already activa
 
 We will deploy an application 
 
-first we create a secret
+
+
+First we create a secret
+
 ```
 kubectl -n play exec -i my-openbao-0 -- bao kv put kv/secret/myapp/config username=demo password=s3cr3t
 kubectl -n play exec -i my-openbao-0 -- bao kv get kv/secret/myapp/config
 kubectl -n play exec -i my-openbao-0 -- bao kv list kv/secret/myapp/
 ```
 
-then we create our serviceaccount 
+Then we create our serviceaccount 
+
 ```demo-sa.yaml
 ---
 apiVersion: v1
@@ -226,7 +234,7 @@ PASSWORD=s3cr3t
 
 **Explaination :**
 
-the annotations will tell kubernetes to add a sidecar to the pod, in charge of fetching the secret.
+The annotations will tell kubernetes to add a sidecar to the pod, in charge of fetching the secret.
 
 - `vault.hashicorp.com/agent-inject-secret-*.txt` must contains the real full path of the secret
 - `vault.hashicorp.com/agent-inject-template-*.txt` is a template that will translate the content of the secret into a file
@@ -245,10 +253,15 @@ kubectl -n play logs demo-pod -c vault-agent-init
 
 # TODO
 
-The sealing will reapply each time the pod is rescheduled, to avoid this problem openBAO propose to use "google kms auto unseal"
-we probably should associate an auto-unseal 
+- [ ] The sealing will reapply each time the pod is rescheduled. Autosealing method depends on your environment :
 
-https://openbao.org/docs/platform/k8s/helm/run/#google-kms-auto-unseal
+| Backend             | Cloud                 | Avantages                             |
+| ------------------- | --------------------- | ------------------------------------- |
+| **AWS KMS**         | AWS                   | Simple, well integrated, stable       |
+| **GCP KMS**         | GCP                   | Idem, + IAM solide                    |
+| **Azure Key Vault** | Azure                 | Idem                                  |
+| **HSM (PKCS11)**    | On-premise / Hardware | highly securised, but heavy to set up |
+| **Transit unseal**  | Secondary Vault       | Possible but not common               |
 
 
-
+- [ ] in its current format, the openbao works with only one pod, having several pods is better.
