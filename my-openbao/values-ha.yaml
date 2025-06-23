@@ -1,0 +1,6 @@
+openbao:
+  server:
+    ha:
+      enabled: true
+      raft:
+        enabled: true

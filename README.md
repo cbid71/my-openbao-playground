@@ -16,10 +16,16 @@ echo $IP_K3S my-openbao.local | sudo tee -a /etc/hosts
 
 Install OpenBao
 
+
 ```
 helm dependency build ./my-openbao/
 kubectl create namespace play
+
+# standalone :
 helm upgrade -i my-openbao ./my-openbao/ -n play
+# OR
+# ha mode /!\ only if you have several available nodes on your k8s cluster
+helm upgrade -i my-openbao ./my-openbao/ --values ./my-openbao/values-ha.yaml -n play
 ```
 Initialize OpenBAO
 ```
