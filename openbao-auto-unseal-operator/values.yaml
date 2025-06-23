@@ -1,0 +1,14 @@
+credentials:
+  keys:
+    - xxxxxxxxxxxx
+    - yyyyyyyyyyyy
+    - zzzzzzzzzzzz
+    - aaaaaaaaaaaa
+    - bbbbbbbbbbbb
+  keys_base64:
+    - ksdjbjhsfbjbvd
+    - skfjbsgfnHVJVg
+    - jhBKJBKJNKN5Jb
+    - KJBVKJBBKJklkn
+    - kjbjB/ihJVhjhh
+  root_token: "yes.itsafaketoken"
